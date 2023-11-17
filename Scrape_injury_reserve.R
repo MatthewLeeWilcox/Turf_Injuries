@@ -1,4 +1,6 @@
 library(rvest)
+library(janitor)
+library(tidyverse)
 
 link <- "https://www.prosportstransactions.com/football/Search/SearchResults.php?Player=&Team=&BeginDate=&EndDate=&InjuriesChkBx=yes&submit=Search&start=100"
 
@@ -14,12 +16,12 @@ scrape_injury_webpage(link)
 
 base_link <- "https://www.prosportstransactions.com/football/Search/SearchResults.php?Player=&Team=&BeginDate=&EndDate=&InjuriesChkBx=yes&submit=Search&start="
 
-table <- scrape_injury_webpage(paste(base_link, "0", sep = ""))
+table <- scrape_injury_webpage(paste(base_link, "0", sep = ""))%>% row_to_names(1) 
 count = 0
 for (i in 1:574){
   key_val <- i * 25
   scrape_link <- paste(base_link, key_val, sep = "")
-  temp_table <- scrape_injury_webpage(scrape_link)
+  temp_table <- scrape_injury_webpage(scrape_link)%>% row_to_names(1) 
   table <- rbind(table, temp_table)
   print((i/574)*100)
 }
