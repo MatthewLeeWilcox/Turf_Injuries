@@ -7,7 +7,7 @@ injury_df <- read.csv("injury_reserve.csv")
 injury_df <- injury_df[!injury_df$Relinquished == "",]
 
 # Dropping Missing for Team, These players are Free Agents
-
+#Test test 123
 injury_df <- injury_df[!injury_df$Team == "",] %>%
   select(Date, Team, Acquired, Relinquished, Notes)
 
