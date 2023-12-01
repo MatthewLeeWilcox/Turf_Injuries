@@ -1,0 +1,76 @@
+---
+title: "Impact on Field Surface and Player Injuries"
+author: "Matthew Wilcox, Randy Otoo, Logan Lapace"
+output: html_document
+---
+
+# Introduction
+
+This year fans of the NFL have watched their favorite teams compete week-in and week out. However many fans are saddened and angered that they have been unable to watch their favorite players play not being on the field due to injuries. Especially after Aaron Rodgers tore his Achilles in the first game of the season, The NFLPA executive director Lloyd Howell called upon all NFL owners to convert their stadium from turf to grass according to ESPN. With this recent outcry for the switch we want to see if their is correlation between the field surface and the injuries while comparing it with a variety of factors.
+
+```{r}
+library(data.table)
+library(tidyverse)
+```
+
+# Data Descrition
+
+```{r}
+injury_data <- fread("InjuryRecord.csv")
+
+PlayerTD <- fread("PlayerTrackData.csv")
+
+PlayList <- fread("PlayList.csv")
+```
+https://www.kaggle.com/competitions/nfl-playing-surface-analytics/data
+The data was aquired through the NFL 1st and Future - Analytics Kaggle Competion. This was a competition Hosted in 2019 by the NFL to investigate the relationship between the playing surface and the injury and performance of NFL Athletes. This provided Three datasets. The first consisted of the injuries. This provided us with the Injury type, the player/play it occured on, and how long that player was out after that injury. The second data set was of the player telementry data. This data provided information such as speed of the player and movement of that player for individual plays. The final dataset gave us data on the plays. It showed the person involved in the play, what type of play was it, weather at the time of the play and finally the field surface. 
+
+# Data Cleaning 
+
+# Lower Body Injury Comparison
+
+# Surface impact on Injury Day
+
+# Surface and Weather
+
+# Player Movement and the Field Surface
+
+
+```{r}
+get_max_play <- function(input_df, play_col, play_val, max_column){
+  df <- input_df %>% filter(!!as.symbol(play_col) == {{play_val}})
+  max.val <- max(df[[max_column]])
+  max.val
+}
+```
+
+```{r}
+Injury_speeds <- lapply(as.list(injury_data$PlayKey), get_max_play, input_df = PlayerTD, play_col="PlayKey", max_column = "s")
+injury_data$Speeds <- Injury_speeds
+
+```
+
+```{r}
+injury_data <- na.omit(injury_data)
+injury_data <- injury_data %>%
+  select(BodyPart, Surface, Speeds)
+injury_data$Speeds <- as.numeric(injury_data$Speeds)
+injury_data <- injury_data[injury_data$Speeds >= 0]
+injury_data
+```
+
+```{r}
+library(gridExtra)
+speed_synthetic <-ggplot(injury_data[injury_data$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10) +
+  ggtitle("Speed at Injury on Synthetic")
+speed_Natural <- ggplot(injury_data[injury_data$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10)+
+  ggtitle("Speed at Injury on Natural")
+grid.arrange(speed_synthetic, speed_Natural, nrow = 1)
+```
+
+```{r}
+ggplot(injury_data, aes(x = Surface, y = Speeds)) + geom_boxplot()
+```
+# Percentage of Games Played previously on Turf and Injury
