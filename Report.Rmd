@@ -53,7 +53,7 @@ injury_data$Speeds <- Injury_speeds
 ```{r}
 injury_data <- na.omit(injury_data)
 injury_data <- injury_data %>%
-  select(BodyPart, Surface, Speeds)
+  select(BodyPart, Surface, Speeds, PlayKey)
 injury_data$Speeds <- as.numeric(injury_data$Speeds)
 injury_data <- injury_data[injury_data$Speeds >= 0]
 injury_data
@@ -69,8 +69,69 @@ speed_Natural <- ggplot(injury_data[injury_data$Surface == "Natural"], aes(x=Spe
   ggtitle("Speed at Injury on Natural")
 grid.arrange(speed_synthetic, speed_Natural, nrow = 1)
 ```
+```{r}
+Knee_injury <- injury_data[injury_data$BodyPart == "Knee"]
+kspeed_synthetic <-ggplot(Knee_injury[Knee_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10, fill="Black") +
+  ggtitle("Speed of Knee-Injury on Synthetic")
+kspeed_Natural <- ggplot(Knee_injury[Knee_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Black")+
+  ggtitle("Speed of Knee-Injury on Natural")
+
+Ankle_injury <- injury_data[injury_data$BodyPart == "Ankle"]
+Ank.speed_synthetic <-ggplot(Ankle_injury[Ankle_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10, fill = "Orange") +
+  ggtitle("Speed of Ankle-Injury on Synthetic")
+Ank.speed_Natural <- ggplot(Ankle_injury[Ankle_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Orange")+
+  ggtitle("Speed of Ankle-Injury on Natural")
+
+Foot_injury <- injury_data[injury_data$BodyPart == "Foot"]
+fo.speed_synthetic <-ggplot(Foot_injury[Foot_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10,fill = "Sky Blue") +
+  ggtitle("Speed of Foot-Injury on Synthetic")
+fo.speed_Natural <- ggplot(Foot_injury[Foot_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Sky Blue")+
+  ggtitle("Speed of Foot-Injury on Natural")
+
+
+grid.arrange(kspeed_synthetic, kspeed_Natural,Ank.speed_synthetic, 
+             Ank.speed_Natural,fo.speed_synthetic, fo.speed_Natural,  ncol = 2)
+
+```
+
+
+# Percentage of Games Played previously on Turf and Injury
+
+
 
 ```{r}
-ggplot(injury_data, aes(x = Surface, y = Speeds)) + geom_boxplot()
+
+Injury_plays <- filter( PlayerTD,
+  PlayKey %in% unique(injury_data$PlayKey)
+)
+
 ```
-# Percentage of Games Played previously on Turf and Injury
+
+```{r}
+test <- Injury_plays[PlayKey == "31070-3-7"]
+test
+library(png)
+library(grid)
+img <- readPNG("football.png")
+g <- rasterGrob(img, interpolate = TRUE)
+ggplot(test, aes(x,y))+
+  xlim(0,120) + 
+  ylim(0,53.3) + 
+  annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +
+  geom_point(color = "red") 
+
+```
+
+```{r}
+ggplot(test, aes(x,y))+
+  xlim(0,120) + 
+  ylim(0,53.3) + 
+  geom_po
+```
+
