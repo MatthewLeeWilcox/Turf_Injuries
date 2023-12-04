@@ -9,9 +9,7 @@ output:
     self_contained: false
     warning: false
 
-  knitr:
-    warning: false 
-    echo: false
+
 
 ---
 
@@ -28,6 +26,9 @@ library(gridExtra)
 library(png)
 library(grid)
 library(patchwork)
+library(magrittr)
+library(knitr)
+library(kableExtra)
 ```
 
 ```{r, echo = FALSE, warning = FALSE}
@@ -38,6 +39,8 @@ library(gridExtra)
 library(png)
 library(grid)
 library(patchwork)
+library(magrittr)
+library(kableExtra)
 ```
 
 # Data Descrition
@@ -215,7 +218,7 @@ grid.arrange(k.injury.plot,
 ```{r}
 merged_data <- merge(injury_data, PlayList, by = c("PlayerKey", "GameID", "PlayKey"))
 
-merged_data <- merge(merged_data, PlayerTD, by = "PlayKey")
+# merged_data <- merge(merged_data, PlayerTD, by = "PlayKey")
 
 #distribution of injuries by field type
 ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +

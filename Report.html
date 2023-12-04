@@ -34,6 +34,8 @@
 <script src="Report_files/navigation-1.1/codefolding.js"></script>
 <link href="Report_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="Report_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="Report_files/kePrint-0.0.1/kePrint.js"></script>
+<link href="Report_files/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -199,7 +201,10 @@ library(tidyverse)
 library(gridExtra)
 library(png)
 library(grid)
-library(patchwork)</code></pre>
+library(patchwork)
+library(magrittr)
+library(knitr)
+library(kableExtra)</code></pre>
 <pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ## ✔ dplyr     1.1.3     ✔ readr     2.1.4
 ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
@@ -231,7 +236,30 @@ library(patchwork)</code></pre>
 ## 
 ## The following object is masked from &#39;package:dplyr&#39;:
 ## 
-##     combine</code></pre>
+##     combine
+## 
+## 
+## 
+## Attaching package: &#39;magrittr&#39;
+## 
+## 
+## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     set_names
+## 
+## 
+## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract
+## 
+## 
+## 
+## Attaching package: &#39;kableExtra&#39;
+## 
+## 
+## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     group_rows</code></pre>
 </div>
 <div id="data-descrition" class="section level1">
 <h1>Data Descrition</h1>
@@ -257,6 +285,368 @@ class="uri">https://www.kaggle.com/competitions/nfl-playing-surface-analytics/da
 </div>
 <div id="data-cleaning" class="section level1">
 <h1>Data Cleaning</h1>
+<div
+id="look-for-nulls-and-missing-data-summarize-how-many-missing-values-per-column.-ex-no-play-number-for-an-injury-where-player-didnt-exit-on-a-particular-play"
+class="section level3">
+<h3>look for nulls and missing data, summarize: how many missing values
+per column. ex: no play number for an injury where player didnt exit on
+a particular play</h3>
+<pre class="r"><code>null_values &lt;- function(data, name) {
+  
+  data[data == &quot;&quot;] &lt;- NA
+  null_counts &lt;- colSums(is.na(data))
+  data_name &lt;- name
+  x = paste(&quot;Null Value Counts by Column: &quot;,data_name) 
+  result_null_check &lt;- data.frame(Column = names(null_counts), NullCount = null_counts)
+
+  # Print the formatted table using kable and kableExtra
+  result_table &lt;- result_null_check %&gt;%
+    kable(&quot;html&quot;, align = c(&quot;l&quot;, &quot;c&quot;), caption = x , col.names = c(&quot;Column&quot;, &quot;NullCount&quot;), row.names = FALSE) %&gt;%
+    kable_styling(full_width = FALSE)
+  
+  return(result_table)
+}</code></pre>
+<pre class="r"><code>null_values(injury_data, &#39;injury_data&#39;)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Null Value Counts by Column: injury_data
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Column
+</th>
+<th style="text-align:center;">
+NullCount
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PlayerKey
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GameID
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayKey
+</td>
+<td style="text-align:center;">
+28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BodyPart
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Surface
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DM_M1
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DM_M7
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DM_M28
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DM_M42
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>null_values(PlayerTD, &#39;PlayerTD&#39;)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Null Value Counts by Column: PlayerTD
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Column
+</th>
+<th style="text-align:center;">
+NullCount
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PlayKey
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+time
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+event
+</td>
+<td style="text-align:center;">
+74526875
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+x
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+y
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dir
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dis
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+o
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+s
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>null_values(PlayList, &#39;PlayList&#39;)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Null Value Counts by Column: PlayList
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Column
+</th>
+<th style="text-align:center;">
+NullCount
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PlayerKey
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GameID
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayKey
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RosterPosition
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayerDay
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayerGame
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+StadiumType
+</td>
+<td style="text-align:center;">
+16910
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FieldType
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Temperature
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Weather
+</td>
+<td style="text-align:center;">
+18691
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayType
+</td>
+<td style="text-align:center;">
+367
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PlayerGamePlay
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Position
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PositionGroup
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<p>Injury_data: In the injury dataset, the examination of null values
+reveals that all columns, except for “PlayKey,” are free of missing
+data. However, “PlayKey” exhibits 28 null values. Possible explanations
+for this could include data recording errors, where the play key
+information might not have been recorded or documented properly during
+the data collection process. It could also be attributed to instances
+where the specific plays associated with injuries are genuinely unknown
+or not applicable. Further investigation into the nature of these null
+values, such as examining the corresponding records or consulting
+additional data sources, may provide insights into the reasons behind
+the missing “PlayKey” entries and inform appropriate strategies for
+handling or imputing this missing information.</p>
+<p>PlayerTD: The “PlayerTD” dataset presents minimal missing data, with
+no null values in crucial columns such as “PlayKey” and “time.” However,
+a substantial number of null values (74,526,875) in the “event” column
+suggest potential issues in recording or documenting specific events
+during plays. Additionally, two null values each in the “dir” and “o”
+columns may be attributed to plays where directional and orientation
+data were either not captured or were missing during the recording
+process.</p>
+<p>Playlist: Within the “PlayList” dataset, most columns exhibit no null
+values, providing a robust foundation for analysis. However, there are
+notable exceptions. The “StadiumType” column contains 16,910 null
+values, signifying gaps in information about the stadium type during
+games. Similarly, the “Weather” column has 18,691 null values,
+indicating missing data concerning weather conditions. The “PlayType”
+column also shows 367 null values, suggesting instances where the play
+type is unspecified or not recorded. Understanding the specific context
+of these missing values is essential for comprehensive data
+interpretation and appropriate handling.</p>
+</div>
 </div>
 <div id="lower-body-injury-comparison" class="section level1">
 <h1>Lower Body Injury Comparison</h1>
@@ -271,7 +661,7 @@ injury_data %&gt;%
   labs(x = &quot;Body Part&quot;,
        y = &quot;Number&quot;,
        title = &quot;Lower Body Injury Comparison&quot;) </code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <pre class="r"><code># Set plotting area into a 2*3 array
 par(mfrow = c(2,3))
 
@@ -377,7 +767,28 @@ h.injury_df</code></pre>
              f.injury.plot, 
              h.injury.plot, 
              nrow = 3, ncol = 3)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>merged_data &lt;- merge(injury_data, PlayList, by = c(&quot;PlayerKey&quot;, &quot;GameID&quot;, &quot;PlayKey&quot;))
+
+# merged_data &lt;- merge(merged_data, PlayerTD, by = &quot;PlayKey&quot;)
+
+#distribution of injuries by field type
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = &quot;stack&quot;) +
+  labs(title = &quot;Injuries by Field Type and Body Part&quot;)</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>#distribution of injuries by field type as proportions
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = &quot;fill&quot;) +
+  labs(title = &quot;Proportion of Injuries by Field Type and Body Part&quot;)</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-10-2.png" width="672" />
+The first plot shows absolute injury counts stacked by body part, while
+the second plot presents proportions of injuries by body part within
+each field type. If “FieldType” refers to playing surface, a preliminary
+observation suggests that synthetic turf may have a higher overall
+injury count, with the second plot indicating a potential association
+between synthetic turf and a higher proportion of ankle injuries
+compared to natural turf.</p>
 </div>
 <div id="surface-impact-on-injury-length" class="section level1">
 <h1>Surface impact on Injury Length</h1>
@@ -398,7 +809,7 @@ h.injury_df</code></pre>
 
 ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
 ## -Inf</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <pre class="r"><code>injury_data$days_out &lt;- injury_data$DM_M1 + injury_data$DM_M7 + injury_data$DM_M28 + injury_data$DM_M42
 
 Injury_len_df &lt;- injury_data %&gt;% select(BodyPart, Surface, days_out)
@@ -438,7 +849,7 @@ injury_len_map &lt;- ggplot(Injury_len_df.surface_count, aes(x=surface, y = days
   xlab(&quot;Field Surface&quot;)
   
 injury_len_map</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<p><img src="Report_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 The graph above shows the proportion of the injuries that happened on
 synthetic and natural grass fields for the length of the injury. The two
 field surfaces follow similar patterns with the length of the injury,
@@ -451,6 +862,51 @@ had proportionally more injuries lasting a couple of weeks.</p>
 </div>
 <div id="surface-and-weather" class="section level1">
 <h1>Surface and Weather</h1>
+<pre class="r"><code>ggplot(merged_data, aes(x = Weather, fill = BodyPart)) +
+  geom_bar(position = &quot;stack&quot;) +
+  labs(title = &quot;Injuries by Weather and Body Part&quot;) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = &quot;stack&quot;) +
+  facet_wrap(~Weather) +
+  labs(title = &quot;Injuries by Field Type and Body Part (Faceted by Weather)&quot;)</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
+<pre class="r"><code>ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = &quot;fill&quot;) +  # Use position = &quot;fill&quot; for proportions
+  facet_wrap(~Weather, scales = &quot;free_y&quot;) +  # Use scales = &quot;free_y&quot; for independent y-axes
+  labs(title = &quot;Proportions of Injuries by Field Type and Body Part (Faceted by Weather)&quot;)</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-13-3.png" width="672" /></p>
+<pre class="r"><code># Heatmap for the correlation between field types, weather, and injuries
+correlation_matrix &lt;- table(merged_data$FieldType, merged_data$Weather)
+heatmap(correlation_matrix, main = &quot;Correlation Heatmap&quot;, 
+        xlab = &quot;Weather&quot;, ylab = &quot;FieldType&quot;, col = heat.colors(12))</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-13-4.png" width="672" />
+A stacked bar plot, visualizing the distribution of injuries by weather
+conditions and body parts. the data reveals elevated injury counts under
+weather conditions characterized by reduced visibility, such as cloudy,
+partly cloudy, and sunny conditions. This observation prompts further
+exploration into the potential correlation between weather patterns
+impacting visibility and the occurrence of injuries.</p>
+<p>The first plot provides a stacked bar chart depicting the
+distribution of injuries across body parts on different field types
+under various weather conditions. The second plot displays proportions
+of injuries with independent y-axes, emphasizing the relative
+contribution of body parts on distinct field types during different
+weather conditions. Notably, the observations suggest a clear
+correlation between synthetic turf and ankle injuries. Furthermore, the
+heightened correlation between low visibility weather conditions and
+injuries appears more pronounced for natural turf fields. Indoor fields
+are almost always Synthetic turf, so low visibility conditions are not
+going to apply very often to turf fields.</p>
+<p>A heatmap showcasing the correlation between field types, weather
+conditions, and injuries in the merged dataset. The heatmap, titled
+“Correlation Heatmap,” visually confirms and reinforces the earlier
+observations from the preceding analyses and visualizations, providing a
+succinct summary of the interconnected factors influencing injury
+patterns. Injuries are more evenly distrubuted across all weather
+conditions for turf fields (which happen to be indoors more often),
+while we notice a skew in the heat map for natural turf fields.</p>
 </div>
 <div id="player-movement-and-the-field-surface" class="section level1">
 <h1>Player Movement and the Field Surface</h1>
@@ -481,7 +937,7 @@ speed_Natural &lt;- ggplot(injury_data[injury_data$Surface == &quot;Natural&quot
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   ggtitle(&quot;Speed at Injury on Natural&quot;)
 grid.arrange(speed_synthetic, speed_Natural, nrow = 1)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>These two graphs show the maximum speed on the play where the injury
 occurred. What is seen is that on natural grass, the speed at which the
 injury occurs appears to be a bit more uniform than on synthetic grass.
@@ -534,7 +990,7 @@ fo.speed_Natural &lt;- ggplot(Foot_injury[Foot_injury$Surface == &quot;Natural&q
 
 grid.arrange(kspeed_synthetic,Ank.speed_synthetic, fo.speed_synthetic,
              kspeed_Natural, Ank.speed_Natural, fo.speed_Natural,  ncol = 3)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<p><img src="Report_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 If we split out the injuries by the body part that the injury occurred
 on we can get more insights. There are not enough foot injuries to
 really determine a difference. For Knee injuries, the distributions are
@@ -589,41 +1045,41 @@ that occurred. One common trait that is observed is that in majority of
 the plays that had knee injuries, the player was cutting and stopping
 after going fast.</p>
 <pre class="r"><code>(g0 | g1)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <pre class="r"><code>  (g2 | g3)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-2.png" width="672" /></p>
 <pre class="r"><code>(g4 | g5)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-3.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-3.png" width="672" /></p>
 <pre class="r"><code>  (g7 | g6)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-4.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-4.png" width="672" /></p>
 <pre class="r"><code>(g8 | g9)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-5.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-5.png" width="672" /></p>
 <pre class="r"><code>  (g11 | g10)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-6.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>
 <pre class="r"><code>(g12 | g14)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-7.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-7.png" width="672" /></p>
 <pre class="r"><code>  (g13 | g15)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-8.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-8.png" width="672" /></p>
 <pre class="r"><code>(g19 | g16)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-9.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-9.png" width="672" /></p>
 <pre class="r"><code>  (g18 | g17)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-10.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-10.png" width="672" /></p>
 <pre class="r"><code>(g20 | g28)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-11.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-11.png" width="672" /></p>
 <pre class="r"><code>  (g21 | g29)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-12.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-12.png" width="672" /></p>
 <pre class="r"><code>(g22 | g30)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-13.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-13.png" width="672" /></p>
 <pre class="r"><code>  (g23 | g31)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-14.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-14.png" width="672" /></p>
 <pre class="r"><code>(g24 | g32)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-15.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-15.png" width="672" /></p>
 <pre class="r"><code>  (g25 | g33)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-16.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-16.png" width="672" /></p>
 <pre class="r"><code>(g26 | g34)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-17.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-17.png" width="672" /></p>
 <pre class="r"><code>  (g27 | g35)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-15-18.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-21-18.png" width="672" /></p>
 </div>
 
 
