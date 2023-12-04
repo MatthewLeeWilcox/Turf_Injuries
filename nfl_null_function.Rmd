@@ -1,0 +1,25 @@
+---
+title: "nfl_null_function"
+author: "logan lapace"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r}
+null_values <- function(data, name) {
+  
+  data[data == ""] <- NA
+  null_counts <- colSums(is.na(data))
+  data_name <- name
+  x = paste("Null Value Counts by Column: ",data_name) 
+  result_null_check <- data.frame(Column = names(null_counts), NullCount = null_counts)
+
+  # Print the formatted table using kable and kableExtra
+  result_table <- result_null_check %>%
+    kable("html", align = c("l", "c"), caption = x , col.names = c("Column", "NullCount"), row.names = FALSE) %>%
+    kable_styling(full_width = FALSE)
+  
+  return(result_table)
+}
+```
