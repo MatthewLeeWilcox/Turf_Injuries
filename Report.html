@@ -260,9 +260,145 @@ class="uri">https://www.kaggle.com/competitions/nfl-playing-surface-analytics/da
 </div>
 <div id="lower-body-injury-comparison" class="section level1">
 <h1>Lower Body Injury Comparison</h1>
+<pre class="r"><code>view(injury_data)
+injury_data %&gt;% 
+  ggplot(aes(BodyPart,
+              fill = Surface)) +
+  geom_bar(position = &quot;dodge&quot;, alpha = 1)+
+  theme_bw()+
+  theme( panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank()) +
+  labs(x = &quot;Body Part&quot;,
+       y = &quot;Number&quot;,
+       title = &quot;Lower Body Injury Comparison&quot;) </code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code># Set plotting area into a 2*3 array
+par(mfrow = c(2,3))
+
+k.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Knee&quot;)
+
+k.injury_df &lt;- k.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(k.injury_df))
+
+k.injury.plot &lt;- ggplot(k.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0)+ ggtitle(&quot;Knee&quot;)
+k.injury_df</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   Surface    prop
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Natural     0.5
+## 2 Synthetic   0.5</code></pre>
+<pre class="r"><code>a.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Ankle&quot;)
+
+a.injury_df &lt;- a.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(a.injury_df))
+
+a.injury.plot&lt;- ggplot(a.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0)+ ggtitle(&quot;Ankle&quot;)
+a.injury_df</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   Surface    prop
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Natural   0.405
+## 2 Synthetic 0.595</code></pre>
+<pre class="r"><code>t.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Toes&quot;)
+
+t.injury_df &lt;- t.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(t.injury_df))
+
+t.injury.plot &lt;- ggplot(t.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0)
+
+t.injury_df</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   Surface    prop
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Natural   0.143
+## 2 Synthetic 0.857</code></pre>
+<pre class="r"><code>t.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Toes&quot;)
+
+t.injury_df &lt;- t.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(t.injury_df))
+
+t.injury.plot &lt;- ggplot(t.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0)+ ggtitle( &quot;Toe&quot;)
+t.injury_df</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   Surface    prop
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Natural   0.143
+## 2 Synthetic 0.857</code></pre>
+<pre class="r"><code>f.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Foot&quot;)
+
+f.injury_df &lt;- f.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(f.injury_df))
+
+f.injury.plot &lt;- ggplot(f.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0)+ ggtitle( &quot;Foot&quot;)
+f.injury_df</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   Surface    prop
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Natural   0.714
+## 2 Synthetic 0.286</code></pre>
+<pre class="r"><code>h.injury_df &lt;- injury_data %&gt;% filter(BodyPart == &quot;Heel&quot;)
+
+h.injury_df &lt;- h.injury_df %&gt;%
+  select(BodyPart, Surface) %&gt;%
+  group_by(Surface) %&gt;%
+  summarise(prop = n()/nrow(h.injury_df))
+
+h.injury.plot &lt;- ggplot(h.injury_df, aes(x = &quot;&quot;, y = prop, fill =  Surface)) + 
+  geom_bar(stat = &quot;identity&quot;, width = 1)+
+  coord_polar(&quot;y&quot;, start = 0) + ggtitle(&quot;Heel&quot;)
+h.injury_df</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##   Surface  prop
+##   &lt;chr&gt;   &lt;dbl&gt;
+## 1 Natural     1</code></pre>
+<pre class="r"><code>grid.arrange(k.injury.plot, 
+             a.injury.plot,
+             t.injury.plot, 
+             f.injury.plot, 
+             h.injury.plot, 
+             nrow = 3, ncol = 3)</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
-<div id="surface-impact-on-injury-day" class="section level1">
-<h1>Surface impact on Injury Day</h1>
+<div id="surface-impact-on-injury-length" class="section level1">
+<h1>Surface impact on Injury Length</h1>
+<pre class="r"><code>injury_data %&gt;%
+  ggplot(aes(DM_M28,
+             color = BodyPart,
+             fill = BodyPart)) +
+  geom_density(alpha = 0.4 , show.legend = F) +
+  facet_grid(Surface ~ BodyPart) +
+  labs(title = &quot;Surface impact on Injury Day&quot;,
+       x = &quot;Day out for Injury&quot;,
+       y = &quot;&quot;) +
+  theme_bw()</code></pre>
+<pre><code>## Warning: Groups with fewer than two data points have been dropped.
+## Groups with fewer than two data points have been dropped.</code></pre>
+<pre><code>## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+## -Inf
+
+## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+## -Inf</code></pre>
+<p><img src="Report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>injury_data$days_out &lt;- injury_data$DM_M1 + injury_data$DM_M7 + injury_data$DM_M28 + injury_data$DM_M42
 
 Injury_len_df &lt;- injury_data %&gt;% select(BodyPart, Surface, days_out)
@@ -302,7 +438,7 @@ injury_len_map &lt;- ggplot(Injury_len_df.surface_count, aes(x=surface, y = days
   xlab(&quot;Field Surface&quot;)
   
 injury_len_map</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<p><img src="Report_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 The graph above shows the proportion of the injuries that happened on
 synthetic and natural grass fields for the length of the injury. The two
 field surfaces follow similar patterns with the length of the injury,
@@ -345,7 +481,7 @@ speed_Natural &lt;- ggplot(injury_data[injury_data$Surface == &quot;Natural&quot
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   ggtitle(&quot;Speed at Injury on Natural&quot;)
 grid.arrange(speed_synthetic, speed_Natural, nrow = 1)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>These two graphs show the maximum speed on the play where the injury
 occurred. What is seen is that on natural grass, the speed at which the
 injury occurs appears to be a bit more uniform than on synthetic grass.
@@ -356,13 +492,13 @@ its injuries at any speed.</p>
 <pre class="r"><code>Knee_injury &lt;- injury_data[injury_data$BodyPart == &quot;Knee&quot;]
 kspeed_synthetic &lt;-ggplot(Knee_injury[Knee_injury$Surface == &quot;Synthetic&quot;], aes(x=Speeds)) +
   geom_histogram(bins = 10, fill=&quot;Black&quot;) +
-  ggtitle(&quot;Speed of Knee-Injury on Synthetic&quot;) + 
+  ggtitle(&quot;Knee-Injury on Synthetic&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(1,10)+
   ylim(0,5)
 kspeed_Natural &lt;- ggplot(Knee_injury[Knee_injury$Surface == &quot;Natural&quot;], aes(x=Speeds))+
   geom_histogram(bins = 10, fill = &quot;Black&quot;)+
-  ggtitle(&quot;Speed of Knee-Injury on Natural&quot;) + 
+  ggtitle(&quot;Knee-Injury on Natural&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(1,10)+
   ylim(0,5)
@@ -370,13 +506,13 @@ kspeed_Natural &lt;- ggplot(Knee_injury[Knee_injury$Surface == &quot;Natural&quo
 Ankle_injury &lt;- injury_data[injury_data$BodyPart == &quot;Ankle&quot;]
 Ank.speed_synthetic &lt;-ggplot(Ankle_injury[Ankle_injury$Surface == &quot;Synthetic&quot;], aes(x=Speeds)) +
   geom_histogram(bins = 10, fill = &quot;Orange&quot;) +
-  ggtitle(&quot;Speed of Ankle-Injury on Synthetic&quot;) + 
+  ggtitle(&quot;Ankle-Injury on Synthetic&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(1,10)+
   ylim(0,5)
 Ank.speed_Natural &lt;- ggplot(Ankle_injury[Ankle_injury$Surface == &quot;Natural&quot;], aes(x=Speeds))+
   geom_histogram(bins = 10, fill = &quot;Orange&quot;)+
-  ggtitle(&quot;Speed of Ankle-Injury on Natural&quot;) + 
+  ggtitle(&quot;Ankle-Injury on Natural&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(1,10)+
   ylim(0,5)
@@ -384,13 +520,13 @@ Ank.speed_Natural &lt;- ggplot(Ankle_injury[Ankle_injury$Surface == &quot;Natura
 Foot_injury &lt;- injury_data[injury_data$BodyPart == &quot;Foot&quot;]
 fo.speed_synthetic &lt;-ggplot(Foot_injury[Foot_injury$Surface == &quot;Synthetic&quot;], aes(x=Speeds)) +
   geom_histogram(bins = 10,fill = &quot;Sky Blue&quot;) +
-  ggtitle(&quot;Speed of Foot-Injury on Synthetic&quot;) + 
+  ggtitle(&quot;Foot-Injury on Synthetic&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(0,10)+
   ylim(0,5)
 fo.speed_Natural &lt;- ggplot(Foot_injury[Foot_injury$Surface == &quot;Natural&quot;], aes(x=Speeds))+
   geom_histogram(bins = 10, fill = &quot;Sky Blue&quot;)+
-  ggtitle(&quot;Speed of Foot-Injury on Natural&quot;) + 
+  ggtitle(&quot;Foot-Injury on Natural&quot;) + 
   xlab(&quot;Speed (Yards Per Second)&quot;) +
   xlim(1,10)+
   ylim(0,5)
@@ -398,16 +534,15 @@ fo.speed_Natural &lt;- ggplot(Foot_injury[Foot_injury$Surface == &quot;Natural&q
 
 grid.arrange(kspeed_synthetic,Ank.speed_synthetic, fo.speed_synthetic,
              kspeed_Natural, Ank.speed_Natural, fo.speed_Natural,  ncol = 3)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<p><img src="Report_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 If we split out the injuries by the body part that the injury occurred
 on we can get more insights. There are not enough foot injuries to
 really determine a difference. For Knee injuries, the distributions are
 relatively similar. However for Ankle injuries, there were more injuries
 that occured at higher speeds on Synthetic Grass.</p>
 </div>
-<div id="percentage-of-games-played-previously-on-turf-and-injury"
-class="section level1">
-<h1>Percentage of Games Played previously on Turf and Injury</h1>
+<div id="player-movement" class="section level1">
+<h1>Player Movement</h1>
 <pre class="r"><code>Injury_plays &lt;- filter( PlayerTD,
   PlayKey %in% unique(injury_data$PlayKey)
 )</code></pre>
@@ -425,7 +560,7 @@ class="section level1">
       low = &quot;blue&quot;,
       high = &quot;orange&quot;,
       limits=c(0,10)
-    )
+    )+ guides(fill = guide_legend(title= &quot;Speed&quot;))+
     geom_segment(aes(
       xend = c(tail(x, n=-1), NA),
       yend = c(tail(y, n=-1), NA)
@@ -454,41 +589,41 @@ that occurred. One common trait that is observed is that in majority of
 the plays that had knee injuries, the player was cutting and stopping
 after going fast.</p>
 <pre class="r"><code>(g0 | g1)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <pre class="r"><code>  (g2 | g3)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-2.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
 <pre class="r"><code>(g4 | g5)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-3.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-3.png" width="672" /></p>
 <pre class="r"><code>  (g7 | g6)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-4.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-4.png" width="672" /></p>
 <pre class="r"><code>(g8 | g9)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-5.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-5.png" width="672" /></p>
 <pre class="r"><code>  (g11 | g10)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-6.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-6.png" width="672" /></p>
 <pre class="r"><code>(g12 | g14)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-7.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-7.png" width="672" /></p>
 <pre class="r"><code>  (g13 | g15)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-8.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-8.png" width="672" /></p>
 <pre class="r"><code>(g19 | g16)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-9.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-9.png" width="672" /></p>
 <pre class="r"><code>  (g18 | g17)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-10.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-10.png" width="672" /></p>
 <pre class="r"><code>(g20 | g28)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-11.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-11.png" width="672" /></p>
 <pre class="r"><code>  (g21 | g29)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-12.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-12.png" width="672" /></p>
 <pre class="r"><code>(g22 | g30)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-13.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-13.png" width="672" /></p>
 <pre class="r"><code>  (g23 | g31)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-14.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-14.png" width="672" /></p>
 <pre class="r"><code>(g24 | g32)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-15.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-15.png" width="672" /></p>
 <pre class="r"><code>  (g25 | g33)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-16.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-16.png" width="672" /></p>
 <pre class="r"><code>(g26 | g34)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-17.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-17.png" width="672" /></p>
 <pre class="r"><code>  (g27 | g35)</code></pre>
-<p><img src="Report_files/figure-html/unnamed-chunk-12-18.png" width="672" /></p>
+<p><img src="Report_files/figure-html/unnamed-chunk-15-18.png" width="672" /></p>
 </div>
 
 
