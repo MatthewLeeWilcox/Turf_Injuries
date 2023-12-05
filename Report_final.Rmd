@@ -1,0 +1,562 @@
+---
+title: "Impact on Field Surface and Player Injuries"
+author: "Matthew Wilcox, Randy Otoo, Logan Lapace"
+output:
+  html_document:
+    code_folding: hide
+    highlight: default
+    theme: united
+    self_contained: false
+    warning: false
+
+
+
+---
+
+# Introduction
+
+This year, fans of the NFL have watched their favorite teams compete week in and week out. However, many fans are saddened and angered that they have been unable to watch their favorite players not being on the field due to injuries. Especially after Aaron Rodgers tore his Achilles in the first game of the season, The NFLPA executive director Lloyd Howell called upon all NFL owners to convert their stadium from turf to grass, according to ESPN. With this recent outcry for the switch, we want to see if there is a correlation between the field surface and the injuries while comparing it with various factors.
+
+# Libraries
+```{r, echo = TRUE, warning = FALSE, eval = FALSE}
+
+library(data.table)
+library(tidyverse)
+library(gridExtra)
+library(png)
+library(grid)
+library(patchwork)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r, echo = FALSE, warning = FALSE}
+
+library(data.table)
+library(tidyverse)
+library(gridExtra)
+library(png)
+library(grid)
+library(patchwork)
+library(magrittr)
+library(kableExtra)
+```
+
+# Data Descrition
+
+```{r, warning = FALSE}
+injury_data <- fread("InjuryRecord.csv")
+
+PlayerTD <- fread("PlayerTrackData.csv")
+
+PlayList <- fread("PlayList.csv")
+```
+
+
+The NFL 1st and Future - Analytics Kaggle Competition acquired the data. This competition was Hosted in 2019 by the NFL to investigate the relationship between the playing surface and the injury and performance of NFL Athletes. This provided three datasets. The first consisted of the injuries. This provided us with the Injury type, the player/play it occurred on, and how long that player was out after that injury. The second data set was of the player telemetry data. This data provided information such as the player's speed and the player's movement for individual plays. The final dataset gave us data on the plays. It showed the person involved in the play, what type of play it was, the weather at the time of the play, and finally, the field surface. 
+
+Data Source: https://www.kaggle.com/competitions/nfl-playing-surface-analytics/data
+
+# Data Cleaning 
+### look for nulls and missing data, summarize: how many missing values per column. ex: no play number for an injury where player didnt exit on a particular play
+```{r}
+null_values <- function(data, name) {
+  
+  data[data == ""] <- NA
+  null_counts <- colSums(is.na(data))
+  data_name <- name
+  x = paste("Null Value Counts by Column: ",data_name) 
+  result_null_check <- data.frame(Column = names(null_counts), NullCount = null_counts)
+
+  # Print the formatted table using kable and kableExtra
+  result_table <- result_null_check %>%
+    kable("html", align = c("l", "c"), caption = x , col.names = c("Column", "NullCount"), row.names = FALSE) %>%
+    kable_styling(full_width = FALSE)
+  
+  return(result_table)
+}
+```
+
+```{r}
+null_values(injury_data, 'injury_data')
+```
+
+Injury_data: The evaluation of null values in the injury dataset reveals that all columns, except "PlayKey," are free of missing data. "PlayKey" on the other hand, has 28 null values. Possible explanations include data recording problems, in which the play key information was not correctly recorded or documented during the data collection procedure. It could also be attributed to situations in which the exact plays related with injuries are genuinely unknown or irrelevant. Further research into the nature of these null values, such as examining the corresponding records or consulting additional data sources, may provide insights into the reasons for the missing "PlayKey" entries and inform appropriate strategies for dealing with or imputing this missing information.
+
+
+```{r}
+null_values(PlayerTD, 'PlayerTD')
+```
+
+PlayerTD: The "PlayerTD" dataset contains very little missing data, with no null values in critical columns like "PlayKey" and "time." A significant amount of null values (74,526,875) in the "event" column, on the other hand, suggest probable challenges in recording or documenting specific events during plays. Furthermore, two null values in the "dir" and "o" columns may be assigned to plays in which directional and orientation data were either not obtained or were lost during the recording process.
+
+
+
+```{r}
+null_values(PlayList, 'PlayList')
+```
+
+Playlist: Most columns in the "PlayList" dataset have no null values, giving a solid foundation for research. There are, however, important exceptions. The "StadiumType" column has 16,910 null values, indicating gaps in stadium type information throughout games. Similarly, the "Weather" column has 18,691 null values, indicating that weather data is missing. The "PlayType" column also contains 367 null entries, indicating that the play type was not defined or was not recorded. Understanding the precise context of these missing numbers is critical for accurate data interpretation and processing.
+
+
+
+# Lower Body Injury Comparison
+
+# Surface impact on Injury Day
+
+# Surface and Weather
+#analyze injuries see if trend between certain surfaces and weather and injuries
+
+
+```{r}
+merged_data <- merge(injury_data, PlayList, by = c("PlayerKey", "GameID", "PlayKey"))
+
+
+#distribution of injuries by field type
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  labs(title = "Injuries by Field Type and Body Part")
+
+#distribution of injuries by field type as proportions
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Injuries by Field Type and Body Part")
+```
+
+#"Injuries by Field Type and Body Part" is a stacked bar chart that depicts the prevalence of injuries across body parts on various field types and weather conditions. The second plot, "Proportion of Injuries by Field Type and Body Part", shows injury proportions by body part for each field type.Notably, the findings point to a definite link between synthetic turf and ankle injuries. 
+
+
+```{r}
+ggplot(merged_data, aes(x = Weather, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  labs(title = "Injuries by Weather and Body Part") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+```
+
+#"Injuries by Weather and Body Part" is a stacked bar chart showing the distribution of injuries across different weather conditions, with each bar representing a specific body part. The height of each segment in the bar represents the frequency of injuries for the corresponding combination of weather condition and body part. Our inference is that sunny and cloudy days might have tougher visibility conditions resulting in more injuries.
+
+```{r}
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  facet_wrap(~Weather) +
+  labs(title = "Injuries by Field Type and Body Part (Faceted by Weather)")
+
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "fill") +  # Use position = "fill" for proportions
+  facet_wrap(~Weather, scales = "free_y") +  # Use scales = "free_y" for independent y-axes
+  labs(title = "Proportions of Injuries by Field Type and Body Part (Faceted by Weather)")
+
+# Heatmap for the correlation between field types, weather, and injuries
+correlation_matrix <- table(merged_data$FieldType, merged_data$Weather)
+heatmap(correlation_matrix, main = "Correlation Heatmap", 
+        xlab = "Weather", ylab = "FieldType", col = heat.colors(12))
+```
+
+# All three of these plots show a trend between tougher weather conditions & being on a natural turf field and an increased probability of injury. The Bar chart tables both show that injuries do mot discriminate by weather conditions when on a syntheti turf field. This is most likely because the majority of synthetic turf fields in the NFL in enclosed stadiums, neutralizing any injury risk due to weather conditions. The heat map also shows an eve distribution of injuries across all weather conditions when on a synthetic field. The heatmap also reveals a slight skew towards rougher weather conditons.
+
+
+```{r}
+view(injury_data)
+injury_data %>% 
+  ggplot(aes(BodyPart,
+              fill = Surface)) +
+  geom_bar(position = "dodge", alpha = 1)+
+  theme_bw()+
+  theme( panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank()) +
+  labs(x = "Body Part",
+       y = "Number",
+       title = "Lower Body Injury Comparison") 
+  
+
+
+
+```
+
+```{r}
+
+# Set plotting area into a 2*3 array
+par(mfrow = c(2,3))
+
+k.injury_df <- injury_data %>% filter(BodyPart == "Knee")
+
+k.injury_df <- k.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(k.injury_df))
+
+k.injury.plot <- ggplot(k.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0)+ ggtitle("Knee")
+k.injury_df
+
+
+
+a.injury_df <- injury_data %>% filter(BodyPart == "Ankle")
+
+a.injury_df <- a.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(a.injury_df))
+
+a.injury.plot<- ggplot(a.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0)+ ggtitle("Ankle")
+a.injury_df
+
+
+t.injury_df <- injury_data %>% filter(BodyPart == "Toes")
+
+t.injury_df <- t.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(t.injury_df))
+
+t.injury.plot <- ggplot(t.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0)
+
+t.injury_df
+
+
+t.injury_df <- injury_data %>% filter(BodyPart == "Toes")
+
+t.injury_df <- t.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(t.injury_df))
+
+t.injury.plot <- ggplot(t.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0)+ ggtitle( "Toe")
+t.injury_df
+
+  
+f.injury_df <- injury_data %>% filter(BodyPart == "Foot")
+
+f.injury_df <- f.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(f.injury_df))
+
+f.injury.plot <- ggplot(f.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0)+ ggtitle( "Foot")
+f.injury_df
+
+
+h.injury_df <- injury_data %>% filter(BodyPart == "Heel")
+
+h.injury_df <- h.injury_df %>%
+  select(BodyPart, Surface) %>%
+  group_by(Surface) %>%
+  summarise(prop = n()/nrow(h.injury_df))
+
+h.injury.plot <- ggplot(h.injury_df, aes(x = "", y = prop, fill =  Surface)) + 
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start = 0) + ggtitle("Heel")
+h.injury_df
+
+ 
+grid.arrange(k.injury.plot, 
+             a.injury.plot,
+             t.injury.plot, 
+             f.injury.plot, 
+             h.injury.plot, 
+             nrow = 3, ncol = 3)
+
+  
+ 
+
+
+
+
+```
+```{r}
+merged_data <- merge(injury_data, PlayList, by = c("PlayerKey", "GameID", "PlayKey"))
+
+# merged_data <- merge(merged_data, PlayerTD, by = "PlayKey")
+
+#distribution of injuries by field type
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  labs(title = "Injuries by Field Type and Body Part")
+
+#distribution of injuries by field type as proportions
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Injuries by Field Type and Body Part")
+```
+The first plot shows absolute injury counts stacked by body part, while the second plot presents proportions of injuries by body part within each field type. If "FieldType" refers to playing surface, a preliminary observation suggests that synthetic turf may have a higher overall injury count, with the second plot indicating a potential association between synthetic turf and a higher proportion of ankle injuries compared to natural turf.
+
+
+# Surface impact on Injury Length
+
+```{r}
+injury_data %>%
+  ggplot(aes(DM_M28,
+             color = BodyPart,
+             fill = BodyPart)) +
+  geom_density(alpha = 0.4 , show.legend = F) +
+  facet_grid(Surface ~ BodyPart) +
+  labs(title = "Surface impact on Injury Day",
+       x = "Day out for Injury",
+       y = "") +
+  theme_bw()
+
+
+
+
+
+```
+
+
+
+
+```{r, warning = FALSE}
+injury_data$days_out <- injury_data$DM_M1 + injury_data$DM_M7 + injury_data$DM_M28 + injury_data$DM_M42
+
+Injury_len_df <- injury_data %>% select(BodyPart, Surface, days_out)
+
+injury_len_df.natural <- Injury_len_df %>% filter( Surface == "Natural") 
+len_natural <- nrow(injury_len_df.natural)
+injury_len_df.natural <- injury_len_df.natural %>% group_by(days_out) %>%
+  summarise(prop = n()/len_natural)  
+injury_len_df.natural$surface <- "Natural"
+
+injury_len_df.Synthetic <- Injury_len_df %>% filter( Surface == "Synthetic") 
+len_Synthetic <- nrow(injury_len_df.Synthetic)
+injury_len_df.Synthetic <- injury_len_df.Synthetic %>% group_by(days_out) %>%
+  summarise(prop = n()/len_Synthetic)  
+injury_len_df.Synthetic$surface <- "Synthetic"
+
+
+Injury_len_df.surface_count <- rbind(injury_len_df.natural, injury_len_df.Synthetic) %>% 
+  arrange(desc(days_out))
+Injury_len_df.surface_count <- Injury_len_df.surface_count %>%
+  mutate(days_out = case_when(
+    days_out == 4 ~ "42 + days",
+    days_out == 3 ~ "28-42 days",
+    days_out == 2 ~ "7-28 days", 
+    days_out == 1 ~ "1-7 days out"
+  ))
+days_out_order <- c("1-7 days out","7-28 days","28-42 days","42 + days")
+Injury_len_df.surface_count$days_out <- factor(Injury_len_df.surface_count$days_out, levels = days_out_order)
+
+
+injury_len_map <- ggplot(Injury_len_df.surface_count, aes(x=surface, y = days_out, fill = prop)) +
+  geom_tile() + 
+  geom_text(aes(label = paste(round(prop*100,3), "%")))+
+  scale_fill_gradientn(colors =  c(  "white", "orange")) + 
+  ggtitle("Percentage of the Injury Length by Field Surface ") +
+  ylab("Days Out Injured") +
+  xlab("Field Surface")
+  
+injury_len_map
+```
+The graph above shows the proportion of the injuries that happened on synthetic and natural grass fields for the length of the injury. The two field surfaces follow similar patterns with the length of the injury, especially if the injury caused them to be out more than 42 days or between 1 and 7 days. However, the biggest change is from 7-28 and 28-42 days. The injuries on natural grass had less from 28-42 and more from 7-28. For this data, the proportionally more players who got injured on a Synthetic grass field for approximately a month or more while on grass had proportionally more injuries lasting a couple of weeks. 
+
+# Surface and Weather
+
+```{r}
+ggplot(merged_data, aes(x = Weather, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  labs(title = "Injuries by Weather and Body Part") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "stack") +
+  facet_wrap(~Weather) +
+  labs(title = "Injuries by Field Type and Body Part (Faceted by Weather)")
+
+ggplot(merged_data, aes(x = FieldType, fill = BodyPart)) +
+  geom_bar(position = "fill") +  # Use position = "fill" for proportions
+  facet_wrap(~Weather, scales = "free_y") +  # Use scales = "free_y" for independent y-axes
+  labs(title = "Proportions of Injuries by Field Type and Body Part (Faceted by Weather)")
+
+
+# Heatmap for the correlation between field types, weather, and injuries
+correlation_matrix <- table(merged_data$FieldType, merged_data$Weather)
+heatmap(correlation_matrix, main = "Correlation Heatmap", 
+        xlab = "Weather", ylab = "FieldType", col = heat.colors(12))
+
+
+
+```
+A stacked bar plot, visualizing the distribution of injuries by weather conditions and body parts. the data reveals elevated injury counts under weather conditions characterized by reduced visibility, such as cloudy, partly cloudy, and sunny conditions. This observation prompts further exploration into the potential correlation between weather patterns impacting visibility and the occurrence of injuries.
+
+The first plot provides a stacked bar chart depicting the distribution of injuries across body parts on different field types under various weather conditions. The second plot displays proportions of injuries with independent y-axes, emphasizing the relative contribution of body parts on distinct field types during different weather conditions. Notably, the observations suggest a clear correlation between synthetic turf and ankle injuries. Furthermore, the heightened correlation between low visibility weather conditions and injuries appears more pronounced for natural turf fields. Indoor fields are almost always Synthetic turf, so low visibility conditions are not going to apply very often to turf fields.
+
+A heatmap showcasing the correlation between field types, weather conditions, and injuries in the merged dataset. The heatmap, titled "Correlation Heatmap," visually confirms and reinforces the earlier observations from the preceding analyses and visualizations, providing a succinct summary of the interconnected factors influencing injury patterns. Injuries are more evenly distrubuted across all weather conditions for turf fields (which happen to be indoors more often), while we notice a skew in the heat map for natural turf fields.
+
+# Player Movement and the Field Surface
+
+
+```{r, warning = FALSE}
+get_max_play <- function(input_df, play_col, play_val, max_column){
+  df <- input_df %>% filter(!!as.symbol(play_col) == {{play_val}})
+  max.val <- max(df[[max_column]])
+  max.val
+}
+```
+
+```{r, warning = FALSE}
+Injury_speeds <- lapply(as.list(injury_data$PlayKey), get_max_play, input_df = PlayerTD, play_col="PlayKey", max_column = "s")
+injury_data$Speeds <- Injury_speeds
+
+```
+
+```{r, warning = FALSE}
+injury_data <- na.omit(injury_data)
+injury_data <- injury_data %>%
+  select(BodyPart, Surface, Speeds, PlayKey)
+injury_data$Speeds <- as.numeric(injury_data$Speeds)
+injury_data <- injury_data[injury_data$Speeds >= 0]
+```
+
+We have looked at a variety of factors that could impact the injury with relation to the field surface. But we havent discussed what the individual was doing at the time of injury. With the telemetry data provided we can observe this. The primary factor we are looking at is going to be the speed on the player of the injury. For this it is not just the speed but the max speed the player reached on the play. 
+
+
+```{r, warning = FALSE}
+
+
+speed_synthetic <-ggplot(injury_data[injury_data$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10) +
+  xlab("Speed (Yards Per Second)") +
+  ggtitle("Speed at Injury on Synthetic")
+speed_Natural <- ggplot(injury_data[injury_data$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10)+
+  xlab("Speed (Yards Per Second)") +
+  ggtitle("Speed at Injury on Natural")
+grid.arrange(speed_synthetic, speed_Natural, nrow = 1)
+```
+
+These two graphs show the maximum speed on the play where the injury occurred. What is seen is that on natural grass, the speed at which the injury occurs appears to be a bit more uniform than on synthetic grass. The synthetic graph appears slightly left skew, while natural grass has a more uniform distribution. This could indicate that synthetic grass has more injuries at higher speeds while natural grass is consistent in its injuries at any speed.
+
+```{r, warning = FALSE}
+Knee_injury <- injury_data[injury_data$BodyPart == "Knee"]
+kspeed_synthetic <-ggplot(Knee_injury[Knee_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10, fill="Black") +
+  ggtitle("Knee-Injury on Synthetic") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(1,10)+
+  ylim(0,5)
+kspeed_Natural <- ggplot(Knee_injury[Knee_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Black")+
+  ggtitle("Knee-Injury on Natural") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(1,10)+
+  ylim(0,5)
+
+Ankle_injury <- injury_data[injury_data$BodyPart == "Ankle"]
+Ank.speed_synthetic <-ggplot(Ankle_injury[Ankle_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10, fill = "Orange") +
+  ggtitle("Ankle-Injury on Synthetic") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(1,10)+
+  ylim(0,5)
+Ank.speed_Natural <- ggplot(Ankle_injury[Ankle_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Orange")+
+  ggtitle("Ankle-Injury on Natural") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(1,10)+
+  ylim(0,5)
+
+Foot_injury <- injury_data[injury_data$BodyPart == "Foot"]
+fo.speed_synthetic <-ggplot(Foot_injury[Foot_injury$Surface == "Synthetic"], aes(x=Speeds)) +
+  geom_histogram(bins = 10,fill = "Sky Blue") +
+  ggtitle("Foot-Injury on Synthetic") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(0,10)+
+  ylim(0,5)
+fo.speed_Natural <- ggplot(Foot_injury[Foot_injury$Surface == "Natural"], aes(x=Speeds))+
+  geom_histogram(bins = 10, fill = "Sky Blue")+
+  ggtitle("Foot-Injury on Natural") + 
+  xlab("Speed (Yards Per Second)") +
+  xlim(1,10)+
+  ylim(0,5)
+
+
+grid.arrange(kspeed_synthetic,Ank.speed_synthetic, fo.speed_synthetic,
+             kspeed_Natural, Ank.speed_Natural, fo.speed_Natural,  ncol = 3)
+
+```
+If we split out the injuries by the body part that the injury occurred on we can get more insights. There are not enough foot injuries to really determine a difference. For Knee injuries, the distributions are relatively similar. However for Ankle injuries, there were more injuries that occured at higher speeds on Synthetic Grass. 
+
+
+
+
+# Player Movement
+
+
+
+```{r, warning = FALSE}
+Injury_plays <- filter( PlayerTD,
+  PlayKey %in% unique(injury_data$PlayKey)
+)
+```
+
+```{r, warning = FALSE}
+
+graph_play <- function(df, play, col, graph_name){
+  df <- filter(df, !!as.symbol(col) == {{play}})
+  img <- readPNG("football.png")
+  g <- rasterGrob(img, interpolate = TRUE)
+  temp_name  <- paste("Graph", gsub("-", "_", play), sep = ".")
+  temp_graph <- ggplot(df, aes(x,y, color = s))+
+  xlim(0,120) + 
+  ylim(0,53.3) + 
+  annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +
+  geom_point() + coord_flip()+
+    scale_color_gradient(
+      low = "blue",
+      high = "orange",
+      limits=c(0,10)
+    )+ guides(fill = guide_legend(title= "Speed"))+
+    geom_segment(aes(
+      xend = c(tail(x, n=-1), NA),
+      yend = c(tail(y, n=-1), NA)
+    ))
+  assign(graph_name, temp_graph, envir = .GlobalEnv)
+}
+
+# get_max_play <- function(input_df, play_col, play_val, max_column){
+#   df <- input_df %>% filter(!!as.symbol(play_col) == {{play_val}})
+#   max.val <- max(df[[max_column]])
+#   max.val
+
+# graph_play(PlayerTD, "39873-4-32", "PlayKey")
+
+k.injury_play_list <- unique(Knee_injury$PlayKey)
+counter <- 0
+for(play in k.injury_play_list){
+  graph_name <- paste("g", counter, sep = "")
+  graph_play(PlayerTD, play, "PlayKey", graph_name)
+  counter <- counter +1
+}
+```
+
+Below is visualizations of the plays that lead to the injuries. The color of the dots represent the speed of the player at that moment where they are on the field in the play. The injuries are only knee injuries that occurred. One common trait that is observed is that in majority of the plays that had knee injuries, the player was cutting and stopping after going fast. 
+
+
+```{r, warning = FALSE}
+(g0 | g1)
+  (g2 | g3)
+(g4 | g5)
+  (g7 | g6)
+(g8 | g9)
+  (g11 | g10)
+(g12 | g14)
+  (g13 | g15)
+(g19 | g16)
+  (g18 | g17)
+(g20 | g28)
+  (g21 | g29)
+(g22 | g30)
+  (g23 | g31)
+(g24 | g32)
+  (g25 | g33)
+(g26 | g34)
+  (g27 | g35)
+```
